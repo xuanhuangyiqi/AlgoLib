@@ -1,8 +1,9 @@
 #include <assert.h>
 #include <stack>
+#include <queue>
 
 namespace Graph {
-    struct Edge { int node, next; };
+    struct Edge { int node, next, dis; };
     class Graph
     {
         private:
@@ -52,7 +53,9 @@ namespace Graph {
             memset(edge, 0, sizeof(edge));
             index = 1;
         }
+
         int getV(){return numOfVetex;}
+
         int * getEdges(int v)
         {
             int * res = (int *)malloc(sizeof(int)*VET);
@@ -62,6 +65,7 @@ namespace Graph {
                 res[cnt++] = edge[i].node;
             return res;
         }
+
         void addEdge(int s, int t)
         {
             assert(s != 0); assert(t != 0);
@@ -70,6 +74,42 @@ namespace Graph {
             edge[numOfEdge].next = first[s];
             first[s] = numOfEdge;
         }
+
+        void addEdge(int s, int t, int d)
+        {
+            addEdge(s, t);
+            edge[numOfEdge].dis = d;
+        }
+            
+        int * SPFA(int v)
+        {
+            int n = numOfVetex;
+            int * res = (int *)malloc(sizeof(int)*VET);
+            memset(res, 0xFFF, sizeof(int)*VET);
+            res[v] = 0;
+            bool inQ[VET]; memset(inQ, false, sizeof(inQ));
+            std::queue<int> q;
+            q.push(v); inQ[v] = true;
+            while (!q.empty())
+            {
+                int node = q.front(); inQ[node] = false; q.pop();
+                for (int i = first[node]; i != 0; i = edge[i].next)
+                {
+                    if (res[edge[i].node] < 0 || 
+                            res[node] + edge[i].dis < res[edge[i].node])
+                    {
+                        res[edge[i].node] = res[node] + edge[i].dis;
+                        if (!inQ[edge[i].node])
+                        {
+                            inQ[edge[i].node] = true;
+                            q.push(edge[i].node);
+                        }
+                    }
+                }
+            }
+            return res;
+        }
+
         void tarjan(int * color)
         {
             int n = numOfVetex;
@@ -80,7 +120,6 @@ namespace Graph {
                if (ind[i] == 0)
                    strongconnect(i, ind, color, Q, inQ);
         }
-
-    };
         
+    };
 }
