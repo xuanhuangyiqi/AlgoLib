@@ -1,40 +1,49 @@
-#include <iostream>
-int *getNext(char * s)
-{
-    int n = strlen(s);
-    int * p = (int *)malloc(sizeof(int)*(n+1));
-    memset(p, 0, sizeof(int)*(n+1));
-    p[0] = -1;
-    for (int i = 1; i < n; ++i)
+#include <vector>
+#include <string>
+
+namespace String {
+    class StringProcessor
     {
-        int tmp = p[i-1];
-        while (tmp >= 0 && s[tmp] != s[i-1])
-            tmp = p[tmp];
-        p[i] = tmp+1;
-    }
-    return p;
-}
-int KMP(char * p, char * s) // p is main string, s is pattern string
-{
-    int pos1 = 0, pos2 = 0;
-    int ans = -1;
-    int * ne = getNext(s);
-    while (p[pos1])
-    {
-        if (!s[pos2])
+        private:
+        std::vector<int> _getNext(std::string p)
         {
-            ans = pos1 - pos2;
-            break;
+            int n = p.size(), tmp;
+            std::vector<int> next(n);
+            next[0] = -1;
+            for (int i = 1; i < n; ++i)
+            {
+                tmp = next[i-1];
+                while (tmp >= 0 && p[tmp] != p[i-1])
+                    tmp = next[tmp];
+                next[i] = tmp + 1;
+            }
+            return next;
         }
-        if (p[pos1] == s[pos2])
+
+        public:
+        int KMP(std::string s, std::string p) // p is pattern, s is main string
         {
-            pos1++; pos2++;
+            int p1 = 0, p2 = 0;
+            int ans = -1;
+            std::vector<int> next = _getNext(p);
+            while (s[p1])
+            {
+                if (!p[p2])
+                {
+                    ans = p1 - p2;
+                    break;
+                }
+                if (s[p1] == p[p2])
+                {
+                    p1++; p2++;
+                }
+                else if (p2 == 0)
+                    p1++;
+                else
+                    p2 = next[p2];
+            }
+            return ans; 
+            // index of return value starts from 0. -1 for not found.
         }
-        else if (pos2 == 0)
-            pos1++;
-        else
-            pos2 = ne[pos2];
-    }
-    return ans; 
-    // index of return value starts from 0. -1 for not found.
+    };
 }

@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Graph.h"
+#include "others.h"
 
 using namespace std;
 int n, m, k;
@@ -70,6 +71,13 @@ void test5()
     assert(dis[4] == 3);
     assert(dis[5] == 8);
 }
+void test6()
+{
+    string s = "abaacbabbadca";
+    string p = "bab";
+    String::StringProcessor sp;
+    assert(sp.KMP(s, p) == 5);
+}
 int main()
 {
     test1();
@@ -77,4 +85,5 @@ int main()
     test3();
     test4();
     test5();
+    test6();
 }
