@@ -6,128 +6,115 @@
 #define MAXINT 1000000000
 
 namespace Graph {
-    /*
-    struct Edge { int node, next, dis; };
+    struct Edge { int from, to, next, dis; };
     class Graph
     {
         private:
-        int _numOf_edges, _numOfVertex, _first[VET];
-        _edge _edge[_edge];
-        int index;
+        int _numOfEdges, _numOfVetex;
+        std::vector<int> _first;
+        std::vector<Edge> _edge;
 
-        void strongconnect(int v, int * ind, int * ind_low, std::stack<int>& q, bool * inQ)
+        void _strongconnect(int v, int& index, std::vector<int>& ind, std::vector<int>& ind_low, std::stack<int>& S, std::vector<bool>& inS)
         {
             ind[v] = index;
             ind_low[v] = index;
             index++;
-            assert(inQ[v] == false);
-            inQ[v] = true;
-            q.push(v);
+            assert(inS[v] == false);
+            inS[v] = true;
+            S.push(v);
+
             for (int i = _first[v]; i != 0; i = _edge[i].next)
             {
-                int w = _edge[i].node;
-                if (ind[w] == 0)
+                Edge & e = _edge[i];
+                if (ind[e.to] == -1) // index of w undefined
                 {
-                    strongconnect(w, ind, ind_low, q, inQ);
-                    ind_low[v] = std::min(ind_low[v], ind_low[w]);
+                    _strongconnect(e.to, index, ind, ind_low, S, inS);
+                    ind_low[v] = std::min(ind_low[v], ind_low[e.to]);
                 } 
-                else if (inQ[w])
-                    ind_low[v] = std::min(ind_low[v], ind[w]);
+                else if (inS[e.to])
+                    ind_low[v] = std::min(ind_low[v], ind[e.to]);
             }
+            int w;
             if (ind[v] == ind_low[v])
-            {
-                int w;
-                while (!q.empty())
+                while (!S.empty())
                 {
-                    w = q.top();
-                    q.pop();
-                    inQ[w] = false;
+                    w = S.top();
+                    S.pop();
+                    inS[w] = false;
                     if (w == v) break;
                 }
-            }
-        }
-
-        void _init(int v, int e)
-        {
-            _numOf_edges = 0;
-            _numOfVertex = 0;
-            for (int)
-            index = 1;
         }
 
         public:
-        Graph(int v, int e) { _init(); _numOfVertex = v; }
-        int getV(){return _numOfVertex;}
-
-        int * get_edges(int v)
+        Graph(int v, int e) : _numOfVetex(v), _numOfEdges(0)
         {
-            int * res = (int *)malloc(sizeof(int)*VET);
-            memset(res, 0, sizeof(int)*VET);
-            int cnt = 0;
-            for (int i = _first[v]; i != 0; i = _edge[i].next)
-                res[cnt++] = _edge[i].node;
-            return res;
+            _edge.resize(e+1);
+            _first.resize(v, 0);
         }
 
-        void add_edge(int s, int t)
+        void addEdge(int s, int t)
         {
-            assert(s != 0); assert(t != 0);
-            _numOf_edges++;
-            _edge[_numOf_edges].node = t;
-            _edge[_numOf_edges].next = _first[s];
-            _first[s] = _numOf_edges;
+            //std::cout << "E"; std::cout.flush();
+            ++_numOfEdges;
+            _edge[_numOfEdges].from = s;
+            _edge[_numOfEdges].to = t;
+            _edge[_numOfEdges].next = _first[s];
+            _first[s] = _numOfEdges;
         }
 
-        void add_edge(int s, int t, int d)
+        void addEdge(int s, int t, int d)
         {
-            add_edge(s, t);
-            _edge[_numOf_edges].dis = d;
+            addEdge(s, t);
+            _edge[_numOfEdges].dis = d;
         }
             
-        int * SPFA(int v)
+        std::vector<int> SPFA(int v)
         {
-            int n = _numOfVertex;
-            int * res = (int *)malloc(sizeof(int)*VET);
-            memset(res, 0xFFF, sizeof(int)*VET);
-            res[v] = 0;
-            bool inQ[VET]; memset(inQ, false, sizeof(inQ));
+            std::vector<int> dis(_numOfVetex, -MAXINT);
+            dis[v] = 0;
+            std::vector<bool> inQ(_numOfVetex, false); 
             std::queue<int> q;
-            q.push(v); inQ[v] = true;
+            q.push(v); 
+            inQ[v] = true;
             while (!q.empty())
             {
-                int node = q.front(); inQ[node] = false; q.pop();
-                for (int i = _first[node]; i != 0; i = _edge[i].next)
+                int from = q.front(); inQ[from] = false; q.pop();
+                for (int i = _first[from]; i != 0; i = _edge[i].next)
                 {
-                    if (res[_edge[i].node] < 0 || 
-                            res[node] + _edge[i].dis < res[_edge[i].node])
+                    Edge & e = _edge[i];
+                    if (dis[e.to] < 0 || dis[from] + e.dis < dis[e.to])
                     {
-                        res[_edge[i].node] = res[node] + _edge[i].dis;
-                        if (!inQ[_edge[i].node])
+                        dis[e.to] = dis[e.from] + e.dis;
+                        if (!inQ[e.to])
                         {
-                            inQ[_edge[i].node] = true;
-                            q.push(_edge[i].node);
+                            inQ[e.to] = true;
+                            q.push(e.to);
                         }
                     }
                 }
             }
-            return res;
+            return dis;
         }
 
-        void tarjan(int * color)
+
+        // returns colors from 0 and non-continous
+        // color[i] == color[j] iff i and j in same SSC
+        std::vector<int> tarjan()
         {
-            int n = _numOfVertex;
-            std::stack<int> Q;
-            int ind[n+1];       
-            memset(ind, 0, sizeof(ind));
-            bool inQ[n+1]; memset(inQ, false, sizeof(inQ));
-            for (int i = 1; i <= n; ++i)
-               if (ind[i] == 0)
-                   strongconnect(i, ind, color, Q, inQ);
+            std::vector<int> color(_numOfVetex, -1);
+            std::stack<int> S;
+            int cur_index = 0;
+            std::vector<bool> inS(_numOfVetex, false);
+            std::vector<int> ind(_numOfVetex, -1);
+            for (int i = 0; i < _numOfVetex; ++i)
+               if (ind[i] == -1)    // ind[i] undefined
+               {
+                   _strongconnect(i, cur_index, ind, color, S, inS);
+               }
+            return color;
         }
         
     };
-
-*/
 
     struct FlowEdge
     {
