@@ -1,37 +1,35 @@
-#include "Graph.h"
-
 namespace Tree {
+    template <typename T>
+    struct BinaryTreeNode
+    {
+        BinaryTreeNode<T> * lchild, * rchild, * father; 
+        T val;
+        BinaryTreeNode(T v): val(v), lchild(NULL), rchild(NULL), father(NULL) { }
+    }
+
     class BaseTree
     {
         private:
-        int depth, size;
+        int _depth, _size;
         public:
         BaseTree()
         {
-            depth = 0;
-            size = 0;
+            _depth = 0;
+            _size = 0;
         }
     };
-    class BinaryTree
+
+    template <typename T>
+    class BinaryTree : public BaseTree
     {
         private:
-        BinaryTree * lchild, rchild, father;
-        int v, depth;
+        BinaryTreeNode<T> * _root;
         public:
-        BinaryTree(int v, BinaryTree * f)
+        BinaryTree(): _root(NULL)
         {
-            value = v;
-            lchild = NULL;
-            rchild = NULL;
-            father = f;
-            if (f == NULL)
-                depth = 1;
-            else
-                depth = f->getDepth() + 1;
         }
-        bool hasLChild(){ return (lchild != NULL);}
-        bool hasRChild(){ return (rchild != NULL);}
-        bool isRoot(){ return (father == NULL);}
-
+        BinaryTree(T v)
+        {
+        }
     };
 }
