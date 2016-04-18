@@ -256,7 +256,7 @@ namespace Graph {
                 int flow = 0, cur_flow;
                 
                 while (_build_depth_graph(depth, Q))
-                    while (cur_flow = _find_flow(_start, MAXINT, depth))
+                    while ((cur_flow = _find_flow(_start, MAXINT, depth)))
                         flow += cur_flow;
                 return flow;
             }
@@ -277,7 +277,7 @@ namespace Graph {
                 std::queue<int> Q;
                 std::vector<int> dis;
                 std::vector<bool> inQ;
-                while (cur_weight=_spfa(pre, Q, dis, inQ))
+                while ((cur_weight=_spfa(pre, Q, dis, inQ)))
                 {
                     cur_flow = MAXINT;
                     int cur = _end;

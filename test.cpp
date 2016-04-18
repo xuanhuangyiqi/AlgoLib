@@ -1,10 +1,19 @@
 #include <iostream>
-#include "Graph.h"
-#include "others.h"
+#include "graph.hpp"
+#include "others.hpp"
+#include "tree.hpp"
 
 using namespace std;
 int n, m, k;
 
+struct KVPair{
+    int a, b;
+    bool operator < (KVPair y)
+    {
+        return b < y.b;
+    }
+    KVPair(int x, int y): a(x), b(y) { }
+};
 void test1()
 {
     Graph::FlowGraph g(4, 5, 0, 3);
@@ -78,12 +87,28 @@ void test6()
     String::StringProcessor sp;
     assert(sp.KMP(s, p) == 5);
 }
+void test7()
+{
+    std::vector<KVPair> vec;
+    vec.push_back(KVPair(0, 3));
+    vec.push_back(KVPair(1, 2));
+    vec.push_back(KVPair(2, 1));
+    vec.push_back(KVPair(3, 5));
+    vec.push_back(KVPair(4, 7));
+    Tree::Heap<KVPair> h(vec); 
+    for (int i = 0; i < 5; ++i)
+    {
+        cout << h.top().b << endl;
+        h.pop();
+    }
+}
 int main()
 {
-    test1();
-    test2();
-    test3();
-    test4();
-    test5();
-    test6();
+    //test1();
+    //test2();
+    //test3();
+    //test4();
+    //test5();
+    //test6();
+    test7();
 }
